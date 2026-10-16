@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Signature-level: only apps signed with the same key can see and flip
+         the switches. Every host defines it; Android accepts duplicates from
+         same-signed apps and refuses to install a differently signed one. -->
+    <permission
+        android:name="com.anpaiss.karooswitches.CONTROL"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="com.anpaiss.karooswitches.CONTROL" />
+
+    <!-- The switches popup is a window over the ride app -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Android 11+: package visibility for the discovery query -->
+    <queries>
+        <intent>
+            <action android:name="com.anpaiss.karooswitches.SWITCH" />
+        </intent>
+    </queries>
+
+    <application>
+        <!-- Tap on the Switches field lands here (PendingIntent from the ride app) -->
+        <receiver
+            android:name=".OpenSwitchesReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

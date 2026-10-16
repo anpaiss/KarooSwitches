@@ -1,0 +1,8 @@
+<resources>
+    <!-- Day theme: the Karoo switches to values-night by itself at dusk -->
+    <color name="ks_text">#000000</color>
+    <color name="ks_muted">#666666</color>
+    <color name="ks_on">#2E7D32</color>
+    <color name="ks_off">#C62828</color>
+    <color name="ks_warn">#E65100</color>
+</resources>

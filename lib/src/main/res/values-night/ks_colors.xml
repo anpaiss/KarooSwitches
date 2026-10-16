@@ -1,0 +1,7 @@
+<resources>
+    <color name="ks_text">#FFFFFF</color>
+    <color name="ks_muted">#AAAAAA</color>
+    <color name="ks_on">#66BB6A</color>
+    <color name="ks_off">#EF5350</color>
+    <color name="ks_warn">#FFB74D</color>
+</resources>

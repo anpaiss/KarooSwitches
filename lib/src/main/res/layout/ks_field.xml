@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ks_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@android:color/transparent">
+
+    <TextView
+        android:id="@+id/ks_caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SWITCHES"
+        android:textColor="@color/ks_muted"
+        android:textSize="14sp"
+        android:maxLines="1"
+        android:letterSpacing="0.1" />
+
+    <TextView
+        android:id="@+id/ks_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ON"
+        android:textColor="@color/ks_on"
+        android:textSize="40sp"
+        android:maxLines="1"
+        android:textStyle="bold" />
+</LinearLayout>
