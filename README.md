@@ -25,7 +25,7 @@ of the extensions live on the same device.
 
 ```kotlin
 // build.gradle.kts
-implementation("com.github.anpaiss:KarooSwitches:0.1.0")
+implementation("com.github.anpaiss:KarooSwitches:0.1.1")
 
 // the switch
 class WaterAlertsSwitch : SwitchReceiver() {

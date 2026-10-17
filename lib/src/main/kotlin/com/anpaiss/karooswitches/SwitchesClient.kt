@@ -19,7 +19,12 @@ object SwitchesClient {
         return pm.queryBroadcastReceivers(Intent(Switches.ACTION), PackageManager.GET_META_DATA)
             .mapNotNull { ri ->
                 val ai = ri.activityInfo ?: return@mapNotNull null
-                val label = ai.metaData?.getString(Switches.META_LABEL) ?: ai.loadLabel(pm).toString()
+                // android:value="@string/..." lands in the bundle as a resource id, not a string
+                val label = when (val v = ai.metaData?.get(Switches.META_LABEL)) {
+                    is String -> v
+                    is Int -> runCatching { pm.getText(ai.packageName, v, ai.applicationInfo)?.toString() }.getOrNull()
+                    else -> null
+                } ?: ai.loadLabel(pm).toString()
                 SwitchInfo(ComponentName(ai.packageName, ai.name), label, ai.applicationInfo.loadLabel(pm).toString())
             }
             .sortedWith(compareBy({ it.appName }, { it.label }))

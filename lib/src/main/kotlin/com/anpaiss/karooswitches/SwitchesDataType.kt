@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -55,6 +56,8 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                         emitter.updateView(views)
                     }
                     else -> SwitchesClient.send(context, own, Switches.OP_GET) { on ->
+                        // The answer comes through the main Handler, possibly after the field was removed
+                        if (!scope.isActive) return@send
                         views.setTextViewText(R.id.ks_state, when (on) { true -> "ON"; false -> "OFF"; null -> "?" })
                         views.setTextColor(R.id.ks_state, context.getColor(when (on) {
                             true -> R.color.ks_on; false -> R.color.ks_off; null -> R.color.ks_muted

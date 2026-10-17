@@ -15,6 +15,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 
 /**
@@ -127,7 +128,9 @@ object SwitchesPopup {
                 setColor(Color.parseColor("#EE1A1A1A"))
                 setStroke(dp(2f).toInt(), Color.parseColor("#2196F3"))
             }
-            addView(grid)
+            // Weight 1 lets the rows shrink and scroll when they outgrow the screen,
+            // so CLOSE stays reachable (480x800: about three rows fit)
+            addView(ScrollView(context).apply { addView(grid) }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(close, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(48f).toInt()).apply {
                 setMargins(dp(4f).toInt(), dp(4f).toInt(), dp(4f).toInt(), 0)
             })
