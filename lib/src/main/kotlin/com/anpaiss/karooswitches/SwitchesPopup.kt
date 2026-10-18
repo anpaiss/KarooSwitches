@@ -19,7 +19,9 @@ import android.widget.ScrollView
 import android.widget.TextView
 
 /**
- * Overlay with one ON/OFF button per switch of every installed extension.
+ * Overlay with one ON/OFF button per switch of every installed extension. An
+ * adjustable time ([TimeReceiver], e.g. BetterETA's MTA) gets a full-width row:
+ * label + ON/OFF button, and while ON the time with −15/−5/+5/+15 under it.
  * Same window recipe as the PoiAhead popup (top band, touches outside pass
  * through to the ride app). Closes on CLOSE or after [AUTO_CLOSE_MS] without taps.
  */
@@ -29,6 +31,7 @@ object SwitchesPopup {
     private const val COLOR_ON  = "#2E7D32"   // white on it = 6.5:1
     private const val COLOR_OFF = "#C62828"   // white on it = 5.6:1
     private const val COLOR_UNKNOWN = "#616161"
+    private const val COLOR_STEP = "#1565C0"   // the −15/−5/+5/+15 buttons of a time
 
     private val handler = Handler(Looper.getMainLooper())
     private var current: View? = null
@@ -54,7 +57,9 @@ object SwitchesPopup {
         fun dp(v: Float) = v * density
 
         val grid = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-        switches.chunked(2).forEach { pair ->
+        val (times, toggles) = switches.partition { it.isTime }
+        times.forEach { info -> grid.addView(timeRow(context, info, ::dp)) }
+        toggles.chunked(2).forEach { pair ->
             val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
             pair.forEach { info ->
                 val cell = LinearLayout(context).apply {
@@ -157,6 +162,80 @@ object SwitchesPopup {
                 Log.i(TAG, "Popup shown with ${switches.size} switches")
             }
             .onFailure { e -> Log.e(TAG, "addView failed", e) }
+    }
+
+    /**
+     * Kind "time": header "APP · label" with the ON/OFF button on the right; while ON,
+     * the time on its own line (in the middle of the buttons it wrapped "20:1 0" at 480 px)
+     * and the four step buttons under it. OFF hides time and steps: the row is just the header.
+     */
+    private fun timeRow(context: Context, info: SwitchInfo, dp: (Float) -> Float): View {
+        val cell = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
+        val caption = TextView(context).apply {
+            text = "${info.appName} · ${info.label}"
+            setTextColor(Color.WHITE)
+            textSize = 15f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER_VERTICAL
+            isSingleLine = true
+            ellipsize = TextUtils.TruncateAt.END
+        }
+        val toggle = Button(context).apply {
+            text = "..."
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            minWidth = 0; minimumWidth = 0; setPadding(0, 0, 0, 0)
+            background = GradientDrawable().apply { cornerRadius = dp(8f); setColor(Color.parseColor(COLOR_UNKNOWN)) }
+        }
+        val header = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+        header.addView(caption, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { setMargins(dp(4f).toInt(), 0, dp(4f).toInt(), 0) })
+        header.addView(toggle, LinearLayout.LayoutParams(dp(64f).toInt(), dp(40f).toInt()).apply { setMargins(dp(4f).toInt(), dp(2f).toInt(), dp(4f).toInt(), dp(2f).toInt()) })
+        cell.addView(header, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        val value = TextView(context).apply {
+            text = "..."
+            setTextColor(Color.WHITE)
+            textSize = 28f
+            setTypeface(typeface, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            isSingleLine = true
+        }
+        val detail = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
+        fun paintTime(state: TimeState?) {
+            paint(toggle, state?.on)
+            detail.visibility = if (state?.on == true) View.VISIBLE else View.GONE
+            val text = state?.text.orEmpty()
+            value.text = if (text.isEmpty()) "--:--" else text
+            value.setTextColor(if (text.isEmpty()) Color.parseColor("#BDBDBD") else Color.WHITE)
+        }
+        toggle.setOnClickListener {
+            rearm()
+            SwitchesClient.sendTime(context, info, Switches.OP_TOGGLE) { paintTime(it) }
+        }
+        fun step(delta: Int) = Button(context).apply {
+            text = if (delta > 0) "+$delta" else "−${-delta}"
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+            // Button's default min width (88 dp) and padding do not fit five items in the row
+            minWidth = 0; minimumWidth = 0; setPadding(0, 0, 0, 0)
+            background = GradientDrawable().apply { cornerRadius = dp(8f); setColor(Color.parseColor(COLOR_STEP)) }
+            setOnClickListener {
+                rearm()
+                SwitchesClient.sendTime(context, info, Switches.OP_ADJUST, delta) { paintTime(it) }
+            }
+        }
+        val row = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
+        val lp = LinearLayout.LayoutParams(0, dp(52f).toInt(), 1f).apply {
+            setMargins(dp(4f).toInt(), dp(2f).toInt(), dp(4f).toInt(), dp(8f).toInt())
+        }
+        for (delta in intArrayOf(-15, -5, 5, 15)) row.addView(step(delta), LinearLayout.LayoutParams(lp))
+        detail.addView(value)
+        detail.addView(row)
+        detail.visibility = View.GONE
+        cell.addView(detail, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        SwitchesClient.sendTime(context, info, Switches.OP_GET) { paintTime(it) }
+        return cell
     }
 
     private fun paint(button: Button, on: Boolean?) {

@@ -8,7 +8,7 @@ plugins {
 // (com.github.anpaiss:KarooSwitches), so the dependency line never changes
 // between a local build (publishToMavenLocal) and the published one.
 group = "com.github.anpaiss"
-version = "0.1.1"
+version = "0.2.0"
 
 android {
     namespace  = "com.anpaiss.karooswitches"

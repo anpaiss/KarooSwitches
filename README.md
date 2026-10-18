@@ -20,12 +20,20 @@ of the extensions live on the same device.
   answer in the result extras as boolean `on`.
 * All our extensions are signed with the same release key, so only they can see
   and flip the switches. A debug build and a release build do not see each other.
+* 0.2.0: a receiver with meta-data `com.anpaiss.karooswitches.kind` = `time`
+  extends `TimeReceiver`: an ON/OFF switch plus, while ON, an adjustable time
+  (BetterETA's mandatory arrival time). The popup shows the label with the
+  ON/OFF button and, while ON, the time as HH:mm with −15/−5/+5/+15 buttons
+  under it; OFF leaves just the label and the button. Ops `get`, `toggle` (the
+  switch) and `adjust` with the integer extra `delta` (minutes); the answer
+  carries `on` (the switch) and the string `text` (the time, "" = not set).
+  Older popups see it as a plain switch.
 
 ## Host integration
 
 ```kotlin
 // build.gradle.kts
-implementation("com.github.anpaiss:KarooSwitches:0.1.1")
+implementation("com.github.anpaiss:KarooSwitches:0.2.0")
 
 // the switch
 class WaterAlertsSwitch : SwitchReceiver() {
@@ -47,6 +55,16 @@ listOf(..., SwitchesDataType(extension))
 
 <!-- extension_info.xml -->
 <DataType typeId="switches" displayName="Switches" description="..." graphical="true" icon="..." />
+```
+
+```kotlin
+// a switch with an adjustable time (meta-data kind="time" next to the label)
+class MtaSwitch : TimeReceiver() {
+    override fun isOn(context: Context) = Prefs(context).mtaEnabled
+    override fun setOn(context: Context, on: Boolean) { ... }      // OFF clears the time too
+    override fun text(context: Context): String? = ...               // "18:30", null = not set
+    override fun adjust(context: Context, deltaMin: Int) { ... }
+}
 ```
 
 The host needs the overlay permission (`SYSTEM_ALERT_WINDOW`, merged from the

@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 
 /**
  * The "Switches" data field: the host's name on top, the state of its own
- * switch below (green ON / red OFF), a tap anywhere opens [SwitchesPopup]
- * with the switches of every installed extension.
+ * switch below (green ON / red OFF; a [TimeReceiver] shows its time while ON), a tap
+ * anywhere opens [SwitchesPopup] with the switches of every installed extension.
  *
  * The host declares it in extension_info.xml with typeId "switches" and adds
  * `SwitchesDataType(extension)` to its `types`.
@@ -53,6 +53,19 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                         views.setTextViewText(R.id.ks_state, "SWITCHES")
                         views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, 22f)
                         views.setTextColor(R.id.ks_state, context.getColor(R.color.ks_text))
+                        emitter.updateView(views)
+                    }
+                    own.isTime -> SwitchesClient.sendTime(context, own, Switches.OP_GET) { state ->
+                        if (!scope.isActive) return@sendTime
+                        val (text, color, size) = when {
+                            state == null -> Triple("?", R.color.ks_muted, 40f)
+                            !state.on -> Triple("OFF", R.color.ks_off, 40f)
+                            state.text.isEmpty() -> Triple("--:--", R.color.ks_muted, 30f)
+                            else -> Triple(state.text, R.color.ks_text, 30f)
+                        }
+                        views.setTextViewText(R.id.ks_state, text)
+                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, size)
+                        views.setTextColor(R.id.ks_state, context.getColor(color))
                         emitter.updateView(views)
                     }
                     else -> SwitchesClient.send(context, own, Switches.OP_GET) { on ->
