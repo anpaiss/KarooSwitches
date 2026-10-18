@@ -57,6 +57,8 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                     }
                     own.isTime -> SwitchesClient.sendTime(context, own, Switches.OP_GET) { state ->
                         if (!scope.isActive) return@sendTime
+                        // "BETTERETA · MTA", not "BETTERETA": OFF under the bare app name read as the app being off
+                        views.setTextViewText(R.id.ks_caption, "$appName · ${own.label.uppercase()}")
                         val (text, color, size) = when {
                             state == null -> Triple("?", R.color.ks_muted, 40f)
                             !state.on -> Triple("OFF", R.color.ks_off, 40f)

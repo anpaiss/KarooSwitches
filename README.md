@@ -33,7 +33,7 @@ of the extensions live on the same device.
 
 ```kotlin
 // build.gradle.kts
-implementation("com.github.anpaiss:karooswitches:0.2.0")
+implementation("com.github.anpaiss:karooswitches:0.2.1")
 
 // the switch
 class WaterAlertsSwitch : SwitchReceiver() {
