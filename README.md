@@ -33,7 +33,7 @@ of the extensions live on the same device.
 
 ```kotlin
 // build.gradle.kts
-implementation("com.github.anpaiss:KarooSwitches:0.2.0")
+implementation("com.github.anpaiss:karooswitches:0.2.0")
 
 // the switch
 class WaterAlertsSwitch : SwitchReceiver() {
@@ -72,12 +72,18 @@ library manifest) granted by the user: the field says ALLOW OVERLAY until then.
 Call `Switches.notifyChanged()` when the switch changes from the host's own UI,
 so the field redraws.
 
-## Build
+## Build and publish
 
 ```
-./gradlew :lib:publishToMavenLocal
+./gradlew :lib:publish            # GitHub Packages of this (private) repo
+./gradlew :lib:publishToMavenLocal   # quick local round trip, optional
 ```
 
-Published to the local Maven repository as `com.github.anpaiss:KarooSwitches`,
-the coordinates JitPack will give the public repository; hosts add
-`mavenLocal()` until then.
+Published as `com.github.anpaiss:karooswitches` (lowercase: the registry rejects
+uppercase coordinates with a 422) to
+`https://maven.pkg.github.com/anpaiss/KarooSwitches`. The hosts add that URL
+to their `settings.gradle.kts` next to Hammerhead's, with the same
+credentials: `gpr.user` / `gpr.key` (a token with `read:packages`; the
+publisher's needs `write:packages`) from `local.properties`, the user's
+`gradle.properties`, or `GPR_USER` / `GPR_TOKEN` in the CI. Bump `version`
+here, publish, bump the dependency line in each host.
