@@ -9,7 +9,7 @@ plugins {
 // Coordinates com.github.anpaiss:karooswitches, the same for publishToMavenLocal
 // and for GitHub Packages (which rejects uppercase artifact ids).
 group = "com.github.anpaiss"
-version = "0.2.1"
+version = "0.2.2"
 
 android {
     namespace  = "com.anpaiss.karooswitches"

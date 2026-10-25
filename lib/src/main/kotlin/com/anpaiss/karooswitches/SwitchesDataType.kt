@@ -28,7 +28,9 @@ import kotlinx.coroutines.launch
 class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") {
 
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
-        val tap = PendingIntent.getBroadcast(
+        // In the profile editor the tap must stay with the Karoo (it opens "change this field"):
+        // a clickable field there could never be replaced or removed (Andrea, 25/10).
+        val tap = if (config.preview) null else PendingIntent.getBroadcast(
             context, 0,
             Intent(context, OpenSwitchesReceiver::class.java).setAction(OpenSwitchesReceiver.ACTION),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -40,7 +42,7 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
             Switches.changes.collect {
                 val views = RemoteViews(context.packageName, R.layout.ks_field)
                 views.setTextViewText(R.id.ks_caption, appName)
-                views.setOnClickPendingIntent(R.id.ks_root, tap)
+                tap?.let { views.setOnClickPendingIntent(R.id.ks_root, it) }
                 val own = SwitchesClient.own(context)
                 when {
                     !Settings.canDrawOverlays(context) -> {
