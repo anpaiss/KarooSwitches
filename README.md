@@ -75,7 +75,7 @@ so the field redraws.
 ## Build and publish
 
 ```
-./gradlew :lib:publish            # GitHub Packages of this (private) repo
+./gradlew :lib:publish            # GitHub Packages of this repo
 ./gradlew :lib:publishToMavenLocal   # quick local round trip, optional
 ```
 

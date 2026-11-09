@@ -53,7 +53,7 @@ publishing {
         }
     }
     repositories {
-        // ./gradlew :lib:publish → GitHub Packages of the private repo anpaiss/KarooSwitches;
+        // ./gradlew :lib:publish → GitHub Packages of the repo anpaiss/KarooSwitches;
         // the hosts add the same URL to their settings. publishToMavenLocal still works for
         // a quick local round trip.
         maven {
