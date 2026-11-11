@@ -47,7 +47,7 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                 when {
                     !Settings.canDrawOverlays(context) -> {
                         views.setTextViewText(R.id.ks_state, "ALLOW OVERLAY")
-                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, 16f)
+                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, 14f)   // 16sp did not fit a 238 px cell
                         views.setTextColor(R.id.ks_state, context.getColor(R.color.ks_warn))
                         emitter.updateView(views)
                     }

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The caption shrinks to fit: at a fixed 14sp "BETTERETA · MTA" was cut to "BETTERETA ·"
+     in the 238 px cells of a ten-field page (11/11/2026). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ks_root"
     android:layout_width="match_parent"
@@ -9,13 +11,19 @@
 
     <TextView
         android:id="@+id/ks_caption"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:gravity="center"
         android:text="SWITCHES"
         android:textColor="@color/ks_muted"
-        android:textSize="14sp"
         android:maxLines="1"
-        android:letterSpacing="0.1" />
+        android:letterSpacing="0.1"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="8sp"
+        android:autoSizeMaxTextSize="14sp"
+        android:autoSizeStepGranularity="1sp" />
 
     <TextView
         android:id="@+id/ks_state"
