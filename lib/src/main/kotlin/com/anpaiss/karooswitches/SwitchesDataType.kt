@@ -27,6 +27,11 @@ import kotlinx.coroutines.launch
  */
 class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") {
 
+    private companion object {
+        const val CAPTION_DP = 20f     // the caption row of ks_field
+        const val STATE_FILL = 0.62f   // text size over the height left: a line is about 1.2 x its size, plus air above and below
+    }
+
     override fun startView(context: Context, config: ViewConfig, emitter: ViewEmitter) {
         // In the profile editor the tap must stay with the Karoo (it opens "change this field"):
         // a clickable field there could never be replaced or removed (Andrea, 25/10).
@@ -36,6 +41,10 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val appName = context.applicationInfo.loadLabel(context.packageManager).toString().uppercase()
+        // The state never taller than what the cell leaves under the caption: at a fixed 40sp "ON" sat on
+        // the bottom border of a 126 px cell (Andrea, 11/11/2026)
+        val maxStateSp = ((config.viewSize.second / context.resources.displayMetrics.density - CAPTION_DP) * STATE_FILL).coerceAtLeast(12f)
+        fun RemoteViews.stateSize(sp: Float) = setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, minOf(sp, maxStateSp))
         val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
         scope.launch {
             emitter.onNext(UpdateGraphicConfig(showHeader = false))
@@ -47,13 +56,13 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                 when {
                     !Settings.canDrawOverlays(context) -> {
                         views.setTextViewText(R.id.ks_state, "ALLOW OVERLAY")
-                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, 14f)   // 16sp did not fit a 238 px cell
+                        views.stateSize(14f)   // 16sp did not fit a 238 px cell
                         views.setTextColor(R.id.ks_state, context.getColor(R.color.ks_warn))
                         emitter.updateView(views)
                     }
                     own == null -> {
                         views.setTextViewText(R.id.ks_state, "SWITCHES")
-                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, 22f)
+                        views.stateSize(22f)
                         views.setTextColor(R.id.ks_state, context.getColor(R.color.ks_text))
                         emitter.updateView(views)
                     }
@@ -68,7 +77,7 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                             else -> Triple(state.text, R.color.ks_text, 30f)
                         }
                         views.setTextViewText(R.id.ks_state, text)
-                        views.setTextViewTextSize(R.id.ks_state, TypedValue.COMPLEX_UNIT_SP, size)
+                        views.stateSize(size)
                         views.setTextColor(R.id.ks_state, context.getColor(color))
                         emitter.updateView(views)
                     }
@@ -76,6 +85,7 @@ class SwitchesDataType(extension: String) : DataTypeImpl(extension, "switches") 
                         // The answer comes through the main Handler, possibly after the field was removed
                         if (!scope.isActive) return@send
                         views.setTextViewText(R.id.ks_state, when (on) { true -> "ON"; false -> "OFF"; null -> "?" })
+                        views.stateSize(40f)
                         views.setTextColor(R.id.ks_state, context.getColor(when (on) {
                             true -> R.color.ks_on; false -> R.color.ks_off; null -> R.color.ks_muted
                         }))
