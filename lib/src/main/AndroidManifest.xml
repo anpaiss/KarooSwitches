@@ -9,6 +9,12 @@
         android:protectionLevel="signature" />
     <uses-permission android:name="com.anpaiss.karooswitches.CONTROL" />
 
+    <!-- Backup to Drive through RideStats (backup/ExtensionBackupProvider): the
+         provider of each extension asks for it, same signature only -->
+    <permission
+        android:name="com.anpaiss.permission.EXTENSION_BACKUP"
+        android:protectionLevel="signature" />
+
     <!-- The switches popup is a window over the ride app -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 

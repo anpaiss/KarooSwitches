@@ -72,6 +72,36 @@ library manifest) granted by the user: the field says ALLOW OVERLAY until then.
 Call `Switches.notifyChanged()` when the switch changes from the host's own UI,
 so the field redraws.
 
+## Backup through RideStats (0.3.0)
+
+RideStats keeps a copy of what an extension has learned in the rider's Google
+Drive and puts it back after a reset of the Karoo. An extension takes part by
+subclassing `backup.ExtensionBackupProvider` with the preferences and the text
+files under `filesDir` to save:
+
+```kotlin
+class BackupProvider : ExtensionBackupProvider() {
+    override val prefsNames = listOf("my_prefs")
+    override val files = listOf("memory.txt", "folder")
+    override fun restoreRefusal() = if (recording) "Not now: a ride is being recorded" else null
+    override fun afterRestore() { /* reload what is in memory */ }
+}
+```
+
+and declaring it:
+
+```xml
+<provider
+    android:name=".BackupProvider"
+    android:authorities="${applicationId}.backup"
+    android:exported="true"
+    android:permission="com.anpaiss.permission.EXTENSION_BACKUP" />
+```
+
+The signature-level permission comes from the library manifest. RideStats finds
+every provider guarded by it, so a new extension appears there without a change
+to RideStats; nothing is backed up until the rider turns it on.
+
 ## Build and publish
 
 ```
