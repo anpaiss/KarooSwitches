@@ -102,6 +102,25 @@ The signature-level permission comes from the library manifest. RideStats finds
 every provider guarded by it, so a new extension appears there without a change
 to RideStats; nothing is backed up until the rider turns it on.
 
+## One popup at a time (0.4.0)
+
+`popupturn.PopupTurn` keeps the overlay popups of our extensions from covering
+each other: a popup asks for the turn, waits while another one is on screen,
+and gives it back when it is gone.
+
+```kotlin
+val turn = PopupTurn(context, "poiahead.poi") { logger.log("POPUP", it) }
+turn.request(PopupTurn.PRIORITY_POI, holdMs = 25_000L, stillWanted = { stillAhead() }) { showNow() }
+turn.done()   // when the popup is removed, whatever the reason
+```
+
+Each popup announces CLAIM / SHOWN / GONE with an expiry (its own timeout plus
+5 s) on the broadcast `com.anpaiss.popupturn.STATE`, so a crashed app blocks the
+others only until then. Two requests at once: the higher priority first (inReach
+alarm > MTA > battery > POI > plan > messages). A waiting request is looked at
+again every second and dropped once `stillWanted` says no or `maxWaitMs` is over.
+The decision is pure Kotlin in `PopupTurnLogic`, unit-tested.
+
 ## Build and publish
 
 ```

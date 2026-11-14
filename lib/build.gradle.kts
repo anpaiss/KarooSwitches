@@ -9,7 +9,7 @@ plugins {
 // Coordinates com.github.anpaiss:karooswitches, the same for publishToMavenLocal
 // and for GitHub Packages (which rejects uppercase artifact ids).
 group = "com.github.anpaiss"
-version = "0.3.0"
+version = "0.4.0"
 
 android {
     namespace  = "com.anpaiss.karooswitches"
@@ -34,6 +34,8 @@ dependencies {
     // Provided by the host extension: every one of ours ships karoo-ext already.
     compileOnly(libs.hammerhead.karoo.ext)
     compileOnly(libs.kotlinx.coroutines.android)
+
+    testImplementation(libs.junit)
 }
 
 // Credentials for GitHub Packages: gradle property, local.properties, or the env
